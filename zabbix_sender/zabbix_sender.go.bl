@@ -40,11 +40,17 @@ func main() {
 		return
 	}
 
-	destination := flagSet.Lookup("s").Value.String() + ":" + flagSet.Lookup("p").Value.String()
+	value := flagSet.Lookup("v").Value.String()
+	if value == "" {
+		flagSet.Usage()
+		return
+	}
+
+	destination := flagSet.Lookup("z").Value.String() + ":" + flagSet.Lookup("p").Value.String()
 
 	conn, err := internal.NewConn(destination)
 	if err != nil {
-		log.Println("create connection failed:", err)
+		log.Println("create connection to zabbix server failed:", err)
 		return
 	}
 
@@ -56,7 +62,7 @@ func main() {
 		return
 	}
 
-	data, err := conn.ReadResp()
+	data, err := conn.ReadResp)
 	if err != nil {
 		log.Println("read response from zabbix agent failed:", err)
 		return
@@ -67,14 +73,31 @@ func main() {
 
 func flags() *flag.FlagSet {
 	flagSet := flag.NewFlagSet("", flag.ExitOnError)
-	flagSet.String("s", "127.0.0.1", "Specify host name or IP address of a host.")
-	flagSet.Int("p", 10050, "Specify port number of agent running on the host. Default is 10050.")
-	//flagSet.String("I", "", "Specify source IP address.")
-	flagSet.String("k", "", "Specify key of item to retrieve value for.")
+	flagSet.String("z", "127.0.0.1", "Specify host name or IP address of a host.")
+	flagSet.Int("p", 10051, "Specify port number of trapper process of Zabbix server or proxy.. Default is 10051.")
+	flagSet.String("s", "localhost", "Specify host name the item belongs to(as registered in Zabbix frontend). Host IP address and DNS name will not work.")
+	flagSet.String("k", "", "Specify item key")
+	flagSet.String("o", "", "Specify item value")
 	flagSet.Bool("h", false, "Display this help and exit.")
 	flagSet.Bool("V", false, "Output version information and exit.")
 
 	return flagSet
+	/*
+	   -i --input-file input-file   Load values from input file. Specify - for
+	                              standard input. Each line of file contains
+	                              whitespace delimited: <host> <key> <value>.
+	                              Specify - in <host> to use hostname from
+	                              configuration file or --host argument
+
+	   -T --with-timestamps       Each line of file contains whitespace delimited:
+	                              <host> <key> <timestamp> <value>. This can be used
+	                              with --input-file option. Timestamp should be
+	                              specified in Unix timestamp format
+
+	   -r --real-time             Send metrics one by one as soon as they are
+	                              received. This can be used when reading from
+	                              standard input
+	*/
 }
 
 func printUsage() {

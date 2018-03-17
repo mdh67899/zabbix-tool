@@ -19,6 +19,7 @@ var (
 	ZabbixHeader []byte = []byte("ZBXD\x01")
 
 	ErrBadHeader error = errors.New("read zabbix header value is not ZBXD\x01 from tcp connection.")
+	ErrBadBody   error = errors.New("read zabbix response boody failed.")
 )
 
 type Connection struct {
@@ -53,23 +54,26 @@ func (conn *Connection) Read(data []byte) error {
 	return err
 }
 
-func (conn *Connection) ReadAgentPassiveCheck() ([]byte, error) {
-	data := make([]byte, 13)
-	err := conn.Read(data)
+func (conn *Connection) ReadResp() ([]byte, error) {
+	metadata := make([]byte, 13)
+	err := conn.Read(metadata)
 	if err != nil {
 		return []byte{}, err
 	}
 
-	if !bytes.Equal(data[0:5], ZabbixHeader) {
+	if !bytes.Equal(metadata[0:5], ZabbixHeader) {
 		return []byte{}, ErrBadHeader
 	}
 
-	length := binary.LittleEndian.Uint64(data[4:12])
+	length := binary.LittleEndian.Uint64(metadata[4:12])
 
-	data = make([]byte, int64(length))
+	data := make([]byte, int64(length))
 	err = conn.Read(data)
-	return data, nil
+	if err != nil {
+		return []byte{}, ErrBadBody
+	}
 
+	return data, nil
 }
 
 func (conn *Connection) Write(data []byte) error {
