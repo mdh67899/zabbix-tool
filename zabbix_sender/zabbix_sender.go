@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -80,12 +81,11 @@ func main() {
 		log.Println("read response from zabbix agent failed:", err)
 		return
 	}
-	log.Println(string(resp_data[:]))
 
 	var sendResp internal.SenderResp
-	err1 := json.Unmarshal(resp_data, &sendResp)
-	if err1 != nil {
-		log.Println("decode response body to struct failed:", err1)
+	err = json.Unmarshal(bytes.Trim(resp_data, "\x00"), &sendResp)
+	if err != nil {
+		log.Println("decode response body to struct failed:", err)
 		return
 	}
 

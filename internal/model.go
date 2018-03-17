@@ -42,7 +42,7 @@ type SenderResp struct {
 }
 
 func (data SenderResp) String() string {
-	return "[response: " + data.Response + ", info: " + data.Info
+	return "[response: " + data.Response + ", info: " + data.Info + "]"
 }
 
 //    "response":"success",

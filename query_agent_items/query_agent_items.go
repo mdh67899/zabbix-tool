@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -67,12 +69,13 @@ func main() {
 		return
 	}
 
-	var Resp internal.QueryResp
-	err1 := json.Unmarshal(resp_data, &Resp)
 	log.Println(string(resp_data[:]))
 
-	if err1 != nil {
-		log.Println("decode response body to struct failed:", err1)
+	var Resp internal.QueryResp
+	err = json.Unmarshal(bytes.Trim(resp_data, "\x00"), &Resp)
+
+	if err != nil {
+		log.Println("decode response body to struct failed:", err)
 		return
 	}
 
