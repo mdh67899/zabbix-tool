@@ -8,6 +8,7 @@ import (
 
 const (
 	Sender_request string = "agent data"
+	ActiveCheck    string = "active checks"
 )
 
 type SenderRequest struct {
@@ -51,7 +52,7 @@ func (data SenderResp) String() string {
 //    "response":"success",
 //  "info":"Processed 2 Failed 0 Total 2 Seconds spent 0.002070"
 
-func (data SenderRequest) Encoding() ([]byte, error) {
+func ReqEncoding(data interface{}) ([]byte, error) {
 	buffer := bytes.Buffer{}
 
 	_, err := buffer.Write(ZabbixHeader)
@@ -118,3 +119,54 @@ Server Response:
 }
 
 */
+
+/*
+Get list of items
+
+Agent Request:
+
+<HEADER><DATALEN>{
+   "request":"active checks",
+   "host":"<hostname>"
+}
+
+Server Response：
+
+{
+    "response":"success",
+    "data":[
+    {
+        "key":"log[\/home\/zabbix\/logs\/zabbix_agentd.log]",
+        "delay":"30",
+        "lastlogsize":"0"
+    },
+    {
+        "key":"agent.version",
+        "delay":"600"
+    }
+    ]
+}
+
+*/
+
+type ItemsQuery struct {
+	Request string `json:"request"`
+	Host    string `json:"host"`
+}
+
+type QueryResp struct {
+	Response string     `json:"response"`
+	Data     []ItemMeta `json:"data"`
+}
+
+type ItemMeta struct {
+	Key   string `json:"key"`
+	Delay string `json:"deelay"`
+}
+
+func NewItemsQuery(hostname string) ItemsQuery {
+	return ItemsQuery{
+		Request: ActiveCheck,
+		Host:    hostname,
+	}
+}

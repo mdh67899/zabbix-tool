@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"runtime"
-	"time"
 
 	"github.com/mdh67899/zabbix-tool/internal"
 )
@@ -40,22 +39,8 @@ func main() {
 		return
 	}
 
-	key := flagSet.Lookup("k").Value.String()
-	if key == "" {
-		flagSet.Usage()
-		return
-	}
-
-	value := flagSet.Lookup("o").Value.String()
-	if value == "" {
-		flagSet.Usage()
-		return
-	}
-
-	timestamp := time.Now().Unix()
-	item := internal.NewItem(hostname, key, value, timestamp)
-	senderReq := internal.NewSenderRequest([]internal.Item{item}, timestamp)
-	data, err := internal.ReqEncoding(senderReq)
+	req := internal.NewItemsQuery(hostname)
+	data, err := internal.ReqEncoding(req)
 	if err != nil {
 		log.Println("encoing sender request failed:", err)
 		return
@@ -81,26 +66,25 @@ func main() {
 		log.Println("read response from zabbix agent failed:", err)
 		return
 	}
+
+	var Resp internal.QueryResp
+	err1 := json.Unmarshal(resp_data, &Resp)
 	log.Println(string(resp_data[:]))
 
-	var sendResp internal.SenderResp
-	err1 := json.Unmarshal(resp_data, &sendResp)
 	if err1 != nil {
 		log.Println("decode response body to struct failed:", err1)
 		return
 	}
 
-	fmt.Printf("%s\n", sendResp.String())
+	fmt.Printf("%v\n", Resp)
 }
 
 func flags() *flag.FlagSet {
 	flagSet := flag.NewFlagSet("", flag.ExitOnError)
 
-	flagSet.String("z", "127.0.0.1", "Specify host name or IP address of a host.")
-	flagSet.Int("p", 10051, "Specify port number of trapper process of Zabbix server or proxy.. Default is 10051.")
-	flagSet.String("s", "localhost", "Specify host name the item belongs to(as registered in Zabbix frontend). Host IP address and DNS name will not work.")
-	flagSet.String("k", "", "Specify item key")
-	flagSet.String("o", "", "Specify item value")
+	flagSet.String("z", "localhost", "zabbix server ip.")
+	flagSet.Int("p", 10051, "zabbix server port.")
+	flagSet.String("s", "", "zabbix host hostname.")
 	flagSet.Bool("h", false, "Display this help and exit.")
 	flagSet.Bool("V", false, "Output version information and exit.")
 
