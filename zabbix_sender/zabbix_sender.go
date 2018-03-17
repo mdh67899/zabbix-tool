@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"runtime"
-	"time"
 
 	"github.com/mdh67899/zabbix-tool/internal"
 )
@@ -52,9 +52,8 @@ func main() {
 		return
 	}
 
-	timestamp := time.Now().Unix()
-	item := internal.NewItem(hostname, key, value, timestamp)
-	senderReq := internal.NewSenderRequest([]internal.Item{item}, timestamp)
+	item := internal.NewItem(hostname, key, value)
+	senderReq := internal.NewSenderRequest([]internal.Item{item})
 	data, err := internal.ReqEncoding(senderReq)
 	if err != nil {
 		log.Println("encoing sender request failed:", err)

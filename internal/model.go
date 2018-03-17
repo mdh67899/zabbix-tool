@@ -7,36 +7,32 @@ import (
 )
 
 const (
-	Sender_request string = "agent data"
+	Sender_request string = "sender data"
 	ActiveCheck    string = "active checks"
 )
 
 type SenderRequest struct {
 	Request string `json:"request"`
 	Data    []Item `json:"data"`
-	Clock   int64  `json:"clock"`
 }
 type Item struct {
 	Host  string      `json:"host"`
 	Key   string      `json:"key"`
 	Value interface{} `json:"value"`
-	Clock int64       `json:"clock"`
 }
 
-func NewSenderRequest(data []Item, clock int64) SenderRequest {
+func NewSenderRequest(data []Item) SenderRequest {
 	return SenderRequest{
 		Request: Sender_request,
 		Data:    data,
-		Clock:   clock,
 	}
 }
 
-func NewItem(host, key string, value interface{}, clock int64) Item {
+func NewItem(host, key string, value interface{}) Item {
 	return Item{
 		host,
 		key,
 		value,
-		clock,
 	}
 }
 
