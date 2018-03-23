@@ -65,7 +65,7 @@ func (conn *Connection) ReadResp() ([]byte, error) {
 		return []byte{}, ErrBadHeader
 	}
 
-	length := binary.LittleEndian.Uint64(metadata[4:12])
+	length := binary.LittleEndian.Uint64(metadata[5:])
 
 	data := make([]byte, int64(length))
 	err = conn.Read(data)
